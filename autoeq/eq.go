@@ -15,6 +15,7 @@ const (
 
 type EQGetter interface {
 	GetEQ(meta EQMetadata) ([]byte, error)
+	GetFixedBandGlobalPreamp(meta EQMetadata) (float64, error)
 }
 
 type Doer interface {

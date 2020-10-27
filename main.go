@@ -6,14 +6,24 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/c-bata/go-prompt"
 	"github.com/indiependente/autoEqMac/autoeq"
 	"github.com/indiependente/autoEqMac/eqmac"
 	"github.com/indiependente/autoEqMac/eqmac/mapping"
+	"github.com/indiependente/autoEqMac/server"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	headphonesIndex = `https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results/INDEX.md`
+	autoEQResults   = `https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results`
+	fixedBandSuffix = `%20FixedBandEQ.txt`
+)
+
+var (
+	app  = kingpin.New("autoEqMac", "An interactive CLI that retrieves headphones EQ data from the AutoEq project and produces a JSON preset ready to be imported into EqMac.")
+	file = app.Flag("file", "Output file path.").Short('f').String()
 )
 
 func main() {
@@ -24,50 +34,65 @@ func main() {
 }
 
 func run() error {
-	resp, err := http.Get(headphonesIndex)
-	if err != nil {
-		return fmt.Errorf("could not get updated headphones list: %w", err)
-	}
-	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("could not read headphones list raw data: %w", err)
-	}
+	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	var parser autoeq.MarkDownParser = autoeq.MetadataParser{
-		LinkPrefix:        "https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results",
-		FixedBandEQSuffix: "%20FixedBandEQ.txt",
-	}
-	eqMetas, err := parser.ParseMetadata(data)
-	if err != nil {
-		return fmt.Errorf("could not parse headphones metadata: %w", err)
+	client := http.DefaultClient
+	mdParser := autoeq.MetadataParser{
+		LinkPrefix:        autoEQResults,
+		FixedBandEQSuffix: fixedBandSuffix,
 	}
 	eqGetter := autoeq.EQHTTPGetter{
 		Client: http.DefaultClient,
 	}
-	eqMeta := eqMetas[500]
-	rawEQ, err := eqGetter.GetEQ(eqMeta)
-	if err != nil {
-		return fmt.Errorf("could not get raw EQ data: %w", err)
-	}
-	globalPreamp, err := eqGetter.GetFixedBandGlobalPreamp(eqMeta)
-	if err != nil {
-		return fmt.Errorf("could not get global EQ preamp data: %w", err)
-	}
-	eqMeta.Global = globalPreamp
-	fbEQs, err := autoeq.ToFixedBandEQs(rawEQ)
-	if err != nil {
-		return fmt.Errorf("could not map raw EQ data: %w", err)
-	}
 	mapper := mapping.AutoEQMapper{}
-	eqPreset, err := mapper.MapFixedBand(fbEQs, eqMeta)
+	srv := server.NewHTTPServer(client, mdParser, eqGetter, mapper)
+	eqMetas, err := srv.ListEQsMetadata()
 	if err != nil {
-		return fmt.Errorf("could not map raw EQ datato eqMac preset: %w", err)
+		return fmt.Errorf("could not get EQ metadata: %w", err)
 	}
+
+	fmt.Println("Please select headphones model:")
+	t := prompt.Input("🎧 >>> ", populatedCompleter(eqMetas),
+		prompt.OptionTitle("autoEqMac"),
+		prompt.OptionPrefixTextColor(prompt.Yellow),
+		prompt.OptionPreviewSuggestionTextColor(prompt.Blue),
+		prompt.OptionSelectedSuggestionBGColor(prompt.LightGray),
+		prompt.OptionSuggestionBGColor(prompt.DarkGray))
+	fmt.Println("You selected " + t)
+
+	eqMeta, err := srv.GetEQMetadataByName(t)
+	if err != nil {
+		return fmt.Errorf("could not find EQ data for headphones %s: %w", t, err)
+	}
+
+	eqPreset, err := srv.GetFixedBandEQPreset(eqMeta.ID)
+	if err != nil {
+		return fmt.Errorf("could not find fixed band EQ preset: %w", err)
+	}
+
 	jsonPreset, err := json.Marshal([]eqmac.EQPreset{eqPreset})
 	if err != nil {
-		return fmt.Errorf("could not write preset to JSON: %w", err)
+		return fmt.Errorf("could not marshal preset to JSON: %w", err)
+	}
+	if *file != "" {
+		err := ioutil.WriteFile(*file, jsonPreset, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("could not write preset to file: %w", err)
+		}
+		return nil
 	}
 	fmt.Printf("%s\n", string(jsonPreset))
 	return nil
+}
+
+func populatedCompleter(eqMetas []autoeq.EQMetadata) func(prompt.Document) []prompt.Suggest {
+	return func(d prompt.Document) []prompt.Suggest {
+		var suggs []prompt.Suggest
+		for _, meta := range eqMetas {
+			suggs = append(suggs, prompt.Suggest{
+				Text: meta.Name, Description: meta.ID,
+			})
+		}
+		return prompt.FilterContains(suggs, d.Text, true)
+	}
 }
