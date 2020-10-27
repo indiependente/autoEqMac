@@ -21,3 +21,9 @@ Flags:
 [![asciicast](https://asciinema.org/a/368415.svg)](https://asciinema.org/a/368415)
 
 Once the JSON content has been generated and saved into a file, you can import it into eqMac.
+
+## Credits
+
+Thanks to:
+ - https://github.com/jaakkopasanen/AutoEq
+ - https://github.com/bitgapp/eqMac/
