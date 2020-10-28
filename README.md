@@ -13,7 +13,7 @@ An interactive CLI that retrieves headphones EQ data from the [AutoEq Project](h
 ### Supported commands
 
 ```
-▶ ./autoEqMac --help
+▶ autoEqMac --help
 usage: autoEqMac [<flags>]
 
 An interactive CLI that retrieves headphones EQ data from the AutoEq project and
