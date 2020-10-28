@@ -36,3 +36,4 @@ Once the JSON content has been generated and saved into a file, you can import i
 Thanks to:
  - https://github.com/jaakkopasanen/AutoEq
  - https://github.com/bitgapp/eqMac/
+ - https://github.com/c-bata/go-prompt
