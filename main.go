@@ -1,16 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/c-bata/go-prompt"
 	"github.com/indiependente/autoEqMac/autoeq"
-	"github.com/indiependente/autoEqMac/eqmac"
 	"github.com/indiependente/autoEqMac/eqmac/mapping"
 	"github.com/indiependente/autoEqMac/server"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -69,19 +66,18 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("could not find fixed band EQ preset: %w", err)
 	}
-
-	jsonPreset, err := json.Marshal([]eqmac.EQPreset{eqPreset})
-	if err != nil {
-		return fmt.Errorf("could not marshal preset to JSON: %w", err)
-	}
+	out := os.Stdout
 	if *file != "" {
-		err := ioutil.WriteFile(*file, jsonPreset, os.ModePerm)
+		f, err := os.Create(*file)
 		if err != nil {
-			return fmt.Errorf("could not write preset to file: %w", err)
+			return fmt.Errorf("could not create preset file: %w", err)
 		}
-		return nil
+		out = f
 	}
-	fmt.Printf("%s\n", string(jsonPreset))
+	err = srv.WritePreset(out, eqPreset)
+	if err != nil {
+		return fmt.Errorf("could not write preset to file: %w", err)
+	}
 	return nil
 }
 

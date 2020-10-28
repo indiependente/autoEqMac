@@ -1,7 +1,9 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -102,4 +104,13 @@ func (s HTTPServer) GetEQMetadataByName(name string) (autoeq.EQMetadata, error) 
 		return autoeq.EQMetadata{}, ErrEQMetadataNotFound
 	}
 	return eqMeta, nil
+}
+
+func (s HTTPServer) WritePreset(w io.Writer, p eqmac.EQPreset) error {
+	jsonPreset, err := json.Marshal([]eqmac.EQPreset{p})
+	if err != nil {
+		return fmt.Errorf("could not marshal preset to JSON: %w", err)
+	}
+	_, err = fmt.Fprintln(w, string(jsonPreset))
+	return err
 }
