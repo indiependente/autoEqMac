@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/indiependente/autoEqMac)](https://goreportcard.com/report/github.com/indiependente/autoEqMac)
+
 # autoEqMac
 An interactive CLI that retrieves headphones EQ data from the [AutoEq Project](https://github.com/jaakkopasanen/AutoEq) and produces a JSON preset ready to be imported into [EqMac](https://github.com/bitgapp/eqMac/).
 
