@@ -16,13 +16,16 @@ An interactive CLI that retrieves headphones EQ data from the [AutoEq Project](h
 ▶ autoEqMac --help
 usage: autoEqMac [<flags>]
 
+EqMac preset generator powered by AutoEq.
+
 An interactive CLI that retrieves headphones EQ data from the AutoEq project and 
 produces a JSON preset ready to be imported into EqMac.
 
 Flags:
       --help       Show context-sensitive help (also try --help-long and
                    --help-man).
-  -f, --file=FILE  Output file path.
+  -f, --file=FILE  Output file path. By default it's the name of the headphones
+                   model selected.
 ```
 
 ### Example usage
@@ -30,8 +33,10 @@ Flags:
 [![asciicast](https://asciinema.org/a/368415.svg)](https://asciinema.org/a/368415)
 
 Once the JSON content has been generated and saved into a file, you can import it into eqMac.
-By default `autoEqMac` saves a JSON file with the name of the headphones model you selected in the current working directory.
-You can provide a different path by passing it using the `--file, -f` flag.
+
+By default `autoEqMac` saves a JSON file with the same name of the headphones model you selected in the current working directory.
+
+You can provide a different path by passing it using the `-f, --file` flag.
 
 ## Credits
 
