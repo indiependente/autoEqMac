@@ -5,11 +5,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/c-bata/go-prompt"
 	"github.com/indiependente/autoEqMac/autoeq"
 	"github.com/indiependente/autoEqMac/eqmac/mapping"
 	"github.com/indiependente/autoEqMac/server"
+	au "github.com/logrusorgru/aurora"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -19,8 +21,9 @@ const (
 )
 
 var (
-	app  = kingpin.New("autoEqMac", "An interactive CLI that retrieves headphones EQ data from the AutoEq project and produces a JSON preset ready to be imported into EqMac.")
-	file = app.Flag("file", "Output file path.").Short('f').String()
+	app  = kingpin.New("autoEqMac", "EqMac preset generator powered by AutoEq.\n\nAn interactive CLI that retrieves headphones EQ data from the AutoEq project and produces a JSON preset ready to be imported into EqMac.")
+	file = app.Flag("file", "Output file path. By default it's the name of the headphones model selected.").Short('f').String()
+	_    = app.HelpFlag.Short('h')
 )
 
 func main() {
@@ -45,39 +48,47 @@ func run() error {
 	srv := server.NewHTTPServer(client, mdParser, eqGetter, mapper)
 	eqMetas, err := srv.ListEQsMetadata()
 	if err != nil {
-		return fmt.Errorf("could not get EQ metadata: %w", err)
+		return fmt.Errorf("⛔️ could not get EQ metadata: %w", err)
 	}
-
-	fmt.Println("Please select headphones model:")
-	t := prompt.Input("🎧 >>> ", populatedCompleter(eqMetas),
+	fmt.Println((au.Bold(au.Magenta("🎧 autoEqMac - EqMac preset generator powered by AutoEq"))))
+	fmt.Println(au.Italic("Please select headphones model:"))
+	headphones := prompt.Input("🎧 >>> ", populatedCompleter(eqMetas),
 		prompt.OptionTitle("autoEqMac"),
 		prompt.OptionPrefixTextColor(prompt.Yellow),
 		prompt.OptionPreviewSuggestionTextColor(prompt.Blue),
 		prompt.OptionSelectedSuggestionBGColor(prompt.LightGray),
 		prompt.OptionSuggestionBGColor(prompt.DarkGray))
-	fmt.Println("You selected " + t)
+	fmt.Printf("👉 You selected: %s\n", headphones)
 
-	eqMeta, err := srv.GetEQMetadataByName(t)
+	eqMeta, err := srv.GetEQMetadataByName(headphones)
 	if err != nil {
-		return fmt.Errorf("could not find EQ data for headphones %s: %w", t, err)
+		return fmt.Errorf("⛔️ could not find EQ data for headphones %s: %w", headphones, err)
 	}
 
 	eqPreset, err := srv.GetFixedBandEQPreset(eqMeta.ID)
 	if err != nil {
-		return fmt.Errorf("could not find fixed band EQ preset: %w", err)
+		return fmt.Errorf("⛔️ could not find fixed band EQ preset: %w", err)
 	}
-	out := os.Stdout
-	if *file != "" {
-		f, err := os.Create(*file)
-		if err != nil {
-			return fmt.Errorf("could not create preset file: %w", err)
-		}
-		out = f
+
+	filename := *file
+	if filename == "" {
+		filename = strings.ReplaceAll(headphones, " ", "_") + ".json"
 	}
-	err = srv.WritePreset(out, eqPreset)
+	if !strings.HasSuffix(filename, ".json") {
+		filename += ".json"
+	}
+
+	f, err := os.Create(filename)
 	if err != nil {
-		return fmt.Errorf("could not write preset to file: %w", err)
+		return fmt.Errorf("⛔️ could not create preset file: %w", err)
 	}
+	defer f.Close()
+
+	err = srv.WritePreset(f, eqPreset)
+	if err != nil {
+		return fmt.Errorf("⛔️ could not write preset to file: %w", err)
+	}
+	fmt.Printf("📝 Preset saved to %s\n", f.Name())
 	return nil
 }
 
