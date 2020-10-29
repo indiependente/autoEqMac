@@ -6,14 +6,18 @@ import (
 	"strings"
 )
 
+// FixedBandEQ represents a single EQ band.
 type FixedBandEQ struct {
 	Frequency int     // Hz
 	Gain      float64 // Db
 	Q         float64 // fixed
 }
 
+// FixedBandEQs represents a simple fixed bands EQ.
 type FixedBandEQs []FixedBandEQ
 
+// ToFixedBandEQs transforms the raw EQ data into a fixed band EQ.
+// Returns an error if any.
 func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 	var eqs FixedBandEQs
 	rows := strings.Split(string(data), "\n")

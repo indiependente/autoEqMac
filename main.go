@@ -82,7 +82,10 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("⛔️ could not create preset file: %w", err)
 	}
-	defer f.Close()
+	err = f.Close()
+	if err != nil {
+		return fmt.Errorf("⛔️ could not close preset file: %w", err)
+	}
 
 	err = srv.WritePreset(f, eqPreset)
 	if err != nil {

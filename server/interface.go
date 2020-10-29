@@ -7,6 +7,7 @@ import (
 	"github.com/indiependente/autoEqMac/eqmac"
 )
 
+// Server defines the behaviour of a component capable of serving EQ related requests.
 type Server interface {
 	ListEQsMetadata() ([]autoeq.EQMetadata, error)
 	GetFixedBandEQPreset(id string) (eqmac.EQPreset, error)

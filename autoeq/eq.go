@@ -13,11 +13,14 @@ const (
 	preampPrefix     = "apply preamp of **"
 )
 
+// EQGetter defines the behaviour of a component capable of retrieving EQ information.
 type EQGetter interface {
 	GetEQ(meta EQMetadata) ([]byte, error)
 	GetFixedBandGlobalPreamp(meta EQMetadata) (float64, error)
 }
 
+// Doer defines the behaviour of a component capable of doing an HTTP request,
+// returning an HTTP response and an error.
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
@@ -25,10 +28,13 @@ type Doer interface {
 // compile time interface implementation check
 var _ EQGetter = EQHTTPGetter{}
 
+// EQHTTPGetter is an HTTP based implementation of an EQGetter.
 type EQHTTPGetter struct {
 	Client Doer
 }
 
+// GetEQ returns the raw bytes that represent the EQ described by the input EQ metadata.
+// Returns an error if any.
 func (g EQHTTPGetter) GetEQ(meta EQMetadata) ([]byte, error) {
 	rawdata, err := do(g.Client, meta.Link)
 	if err != nil {
@@ -37,6 +43,8 @@ func (g EQHTTPGetter) GetEQ(meta EQMetadata) ([]byte, error) {
 	return rawdata, nil
 }
 
+// GetFixedBandGlobalPreamp returns the global preamp value in dB for the input EQ.
+// Returns an error if any.
 func (g EQHTTPGetter) GetFixedBandGlobalPreamp(meta EQMetadata) (float64, error) {
 	rawdata, err := do(g.Client, meta.Link[:strings.LastIndex(meta.Link, "/")]+"/README.md")
 	if err != nil {

@@ -13,21 +13,29 @@ import (
 )
 
 const (
-	headphonesIndex                       = `https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results/INDEX.md`
-	ErrEQMetadataNameNotFound ServerError = `eq metadata name not found`
-	ErrEQMetadataNotFound     ServerError = `eq metadata not found`
+	headphonesIndex = `https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results/INDEX.md`
+	// ErrEQMetadataNameNotFound returned when eq metadata name cannot be found.
+	ErrEQMetadataNameNotFound Error = `eq metadata name not found`
+	// ErrEQMetadataNotFound returned when eq metadata cannot be found.
+	ErrEQMetadataNotFound Error = `eq metadata not found`
 )
 
-type ServerError string
+// Error is the error type returned by the server.
+type Error string
 
-func (e ServerError) Error() string {
+// Error returns the string representation of an error.
+func (e Error) Error() string {
 	return string(e)
 }
 
+// Doer defines the behaviour of a component capable of doing an HTTP request,
+// returning an HTTP response and an error.
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
+// HTTPServer is an HTTP implementation of a Server.
+// It fulfills the requests received by obtaining data via HTTP requests.
 type HTTPServer struct {
 	client   Doer
 	mdparser autoeq.MarkDownParser
@@ -37,6 +45,7 @@ type HTTPServer struct {
 	eqNameID map[string]string
 }
 
+// NewHTTPServer returns a new HTTPServer.
 func NewHTTPServer(d Doer, mdp autoeq.MarkDownParser, eqg autoeq.EQGetter, m mapping.Mapper) HTTPServer {
 	return HTTPServer{
 		client:   d,
@@ -48,6 +57,8 @@ func NewHTTPServer(d Doer, mdp autoeq.MarkDownParser, eqg autoeq.EQGetter, m map
 	}
 }
 
+// ListEQsMetadata returns a list of all the EQ metadata found by the server.
+// Returns an error if any.
 func (s HTTPServer) ListEQsMetadata() ([]autoeq.EQMetadata, error) {
 	resp, err := http.Get(headphonesIndex)
 	if err != nil {
@@ -69,6 +80,8 @@ func (s HTTPServer) ListEQsMetadata() ([]autoeq.EQMetadata, error) {
 	return eqMetas, nil
 }
 
+// GetFixedBandEQPreset returns the EQ preset assiciated to the input id.
+// Returns an error if any.
 func (s HTTPServer) GetFixedBandEQPreset(id string) (eqmac.EQPreset, error) {
 	eqMeta, ok := s.eqMetas[id]
 	if !ok {
@@ -94,6 +107,8 @@ func (s HTTPServer) GetFixedBandEQPreset(id string) (eqmac.EQPreset, error) {
 	return eqPreset, nil
 }
 
+// GetEQMetadataByName returns EQ metadata associated to a device name.
+// Returns an error if any.
 func (s HTTPServer) GetEQMetadataByName(name string) (autoeq.EQMetadata, error) {
 	metaID, ok := s.eqNameID[name]
 	if !ok {
@@ -106,6 +121,9 @@ func (s HTTPServer) GetEQMetadataByName(name string) (autoeq.EQMetadata, error) 
 	return eqMeta, nil
 }
 
+// WritePreset writes the input preset to the provided io.Writer.
+// It uses json encoding.
+// Returns an error if any.
 func (s HTTPServer) WritePreset(w io.Writer, p eqmac.EQPreset) error {
 	jsonPreset, err := json.Marshal([]eqmac.EQPreset{p})
 	if err != nil {
