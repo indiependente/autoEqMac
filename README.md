@@ -40,7 +40,7 @@ By default `autoEqMac` saves a JSON file with the same name of the headphones mo
 
 You can provide a different path by passing it using the `-f, --file` flag.
 
-### TODO
+## TODO
 - [ ] GUI
 
 ## Credits
