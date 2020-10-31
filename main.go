@@ -85,6 +85,8 @@ func run() error {
 	defer f.Close() // nolint: golint,gosec
 	err = srv.WritePreset(f, eqPreset)
 	if err != nil {
+		_ = f.Close()
+		_ = os.Remove(filename)
 		return fmt.Errorf("⛔️ could not write preset to file: %w", err)
 	}
 	fmt.Printf("📝 Preset saved to %s\n", f.Name())
