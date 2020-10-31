@@ -1,3 +1,5 @@
+//go:generate mockgen -package autoeq -source=eq.go -destination eq_mock.go
+
 package autoeq
 
 import (
@@ -50,7 +52,7 @@ func (g EQHTTPGetter) GetFixedBandGlobalPreamp(meta EQMetadata) (float64, error)
 	if err != nil {
 		return 0, fmt.Errorf("could not get eq: %w", err)
 	}
-	//remove db
+	//remove dB
 	globalRaw := strings.Replace(string(rawdata), "dB", "", -1)
 	global, err := extractGlobalPreamp(globalRaw)
 	if err != nil {

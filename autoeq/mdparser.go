@@ -1,3 +1,5 @@
+//go:generate mockgen -package autoeq -source=mdparser.go -destination mdparser_mock.go
+
 package autoeq
 
 import (

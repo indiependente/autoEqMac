@@ -1,3 +1,5 @@
+//go:generate mockgen -package mapping -source=mapper.go -destination mapper_mock.go
+
 package mapping
 
 import (
