@@ -9,11 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const (
-	autoEQResults   = `https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results`
-	fixedBandSuffix = `%20FixedBandEQ.txt`
-)
-
 func TestMetadataParser_ParseMetadata(t *testing.T) {
 	t.Parallel()
 	type fields struct {
@@ -33,7 +28,7 @@ func TestMetadataParser_ParseMetadata(t *testing.T) {
 		{
 			name: "Happy path",
 			fields: fields{
-				LinkPrefix:        autoEQResults,
+				LinkPrefix:        eqResultsPrefix,
 				FixedBandEQSuffix: fixedBandSuffix,
 			},
 			args: args{
@@ -44,7 +39,7 @@ func TestMetadataParser_ParseMetadata(t *testing.T) {
 					ID:     "0",
 					Name:   "1Custom SA02",
 					Author: "Crinacle",
-					Link:   autoEQResults + "/crinacle/harman_in-ear_2019v2/1Custom%20SA02/1Custom%20SA02" + fixedBandSuffix,
+					Link:   eqResultsPrefix + "/crinacle/harman_in-ear_2019v2/1Custom%20SA02/1Custom%20SA02" + fixedBandSuffix,
 					Global: 0,
 				},
 			},

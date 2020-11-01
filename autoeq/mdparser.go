@@ -7,6 +7,11 @@ import (
 	"fmt"
 )
 
+const (
+	eqResultsPrefix = `https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results`
+	fixedBandSuffix = `%20FixedBandEQ.txt`
+)
+
 // compile time interface implementation check
 var _ MarkDownParser = MetadataParser{}
 
@@ -28,6 +33,14 @@ type MarkDownParser interface {
 type MetadataParser struct {
 	LinkPrefix        string
 	FixedBandEQSuffix string
+}
+
+// NewMetadataParser returns a MetadataParser with populated fields.
+func NewMetadataParser() MetadataParser {
+	return MetadataParser{
+		LinkPrefix:        eqResultsPrefix,
+		FixedBandEQSuffix: fixedBandSuffix,
+	}
 }
 
 // ParseMetadata returns a slice of EQ metadata parsed from the input raw bytes.

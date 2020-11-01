@@ -1,5 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/indiependente/autoEqMac)](https://goreportcard.com/report/github.com/indiependente/autoEqMac)
-<a href='https://github.com/jpoles1/gopherbadger' target='_blank'>![gopherbadger-tag-do-not-edit](https://img.shields.io/badge/Go%20Coverage-72%25-brightgreen.svg?longCache=true&style=flat)</a>
+<a href='https://github.com/jpoles1/gopherbadger' target='_blank'>![gopherbadger-tag-do-not-edit](https://img.shields.io/badge/Go%20Coverage-63%25-brightgreen.svg?longCache=true&style=flat)</a>
 [![Workflow Status](https://github.com/indiependente/autoEqMac/workflows/lint-test/badge.svg)](https://github.com/indiependente/autoEqMac/actions)
 # autoEqMac
 An interactive CLI that retrieves headphones EQ data from the [AutoEq Project](https://github.com/jaakkopasanen/AutoEq) and produces a JSON preset ready to be imported into [EqMac](https://github.com/bitgapp/eqMac/).

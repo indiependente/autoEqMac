@@ -16,11 +16,6 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const (
-	autoEQResults   = `https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results`
-	fixedBandSuffix = `%20FixedBandEQ.txt`
-)
-
 var (
 	app  = kingpin.New("autoEqMac", "EqMac preset generator powered by AutoEq.\n\nAn interactive CLI that retrieves headphones EQ data from the AutoEq project and produces a JSON preset ready to be imported into EqMac.")
 	file = app.Flag("file", "Output file path. By default it's the name of the headphones model selected.").Short('f').String()
@@ -38,10 +33,7 @@ func run() error {
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	client := http.DefaultClient
-	mdParser := autoeq.MetadataParser{
-		LinkPrefix:        autoEQResults,
-		FixedBandEQSuffix: fixedBandSuffix,
-	}
+	mdParser := autoeq.NewMetadataParser()
 	eqGetter := autoeq.EQHTTPGetter{
 		Client: http.DefaultClient,
 	}
@@ -74,14 +66,7 @@ func run() error {
 		return fmt.Errorf("⛔️ could not find fixed band EQ preset: %w", err)
 	}
 
-	filename := *file
-	if filename == "" {
-		filename = strings.ReplaceAll(headphones, " ", "_") + ".json"
-	}
-	if !strings.HasSuffix(filename, ".json") {
-		filename += ".json"
-	}
-
+	filename := filename(file, headphones)
 	f, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("⛔️ could not create preset file: %w", err)
@@ -98,12 +83,23 @@ func run() error {
 	return nil
 }
 
+func filename(file *string, headphones string) string {
+	filename := *file
+	if filename == "" {
+		filename = fmt.Sprintf("%s.json", strings.ReplaceAll(headphones, " ", "_"))
+	}
+	if !strings.HasSuffix(filename, ".json") {
+		filename += ".json"
+	}
+	return filename
+}
+
 func populatedCompleter(eqMetas []autoeq.EQMetadata) func(prompt.Document) []prompt.Suggest {
 	return func(d prompt.Document) []prompt.Suggest {
 		var suggs []prompt.Suggest
 		for _, meta := range eqMetas {
 			suggs = append(suggs, prompt.Suggest{
-				Text: meta.Name, Description: meta.ID,
+				Text: meta.Name, Description: meta.Author,
 			})
 		}
 		return prompt.FilterContains(suggs, d.Text, true)

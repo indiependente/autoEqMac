@@ -28,12 +28,6 @@ func (e Error) Error() string {
 	return string(e)
 }
 
-// Doer defines the behaviour of a component capable of doing an HTTP request,
-// returning an HTTP response and an error.
-type Doer interface {
-	Do(*http.Request) (*http.Response, error)
-}
-
 // HTTPServer is an HTTP implementation of a Server.
 // It fulfills the requests received by obtaining data via HTTP requests.
 type HTTPServer struct {
@@ -60,7 +54,11 @@ func NewHTTPServer(d Doer, mdp autoeq.MarkDownParser, eqg autoeq.EQGetter, m map
 // ListEQsMetadata returns a list of all the EQ metadata found by the server.
 // Returns an error if any.
 func (s HTTPServer) ListEQsMetadata() ([]autoeq.EQMetadata, error) {
-	resp, err := http.Get(headphonesIndex)
+	req, err := http.NewRequest(http.MethodGet, headphonesIndex, nil)
+	if err != nil {
+		return nil, fmt.Errorf("could not create HTTP request: %w", err)
+	}
+	resp, err := s.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("could not get updated headphones list: %w", err)
 	}
