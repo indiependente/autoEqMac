@@ -22,6 +22,9 @@ func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 	var eqs FixedBandEQs
 	rows := strings.Split(string(data), "\n")
 	for _, row := range rows {
+		if row == "" {
+			continue
+		}
 		eqFields := strings.Fields(row)
 		freq, err := strconv.Atoi(eqFields[5])
 		if err != nil {
