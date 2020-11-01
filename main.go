@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/c-bata/go-prompt"
+	"github.com/google/uuid"
 	"github.com/indiependente/autoEqMac/autoeq"
 	"github.com/indiependente/autoEqMac/eqmac/mapping"
 	"github.com/indiependente/autoEqMac/server"
@@ -44,13 +45,16 @@ func run() error {
 	eqGetter := autoeq.EQHTTPGetter{
 		Client: http.DefaultClient,
 	}
-	mapper := mapping.AutoEQMapper{}
+	mapper := mapping.NewAutoEQMapper(mapping.WrappedGenerator(func() string {
+		return uuid.New().String()
+	}))
+
 	srv := server.NewHTTPServer(client, mdParser, eqGetter, mapper)
 	eqMetas, err := srv.ListEQsMetadata()
 	if err != nil {
 		return fmt.Errorf("⛔️ could not get EQ metadata: %w", err)
 	}
-	fmt.Println((au.Bold(au.Magenta("🎧 autoEqMac - EqMac preset generator powered by AutoEq"))))
+	fmt.Println(au.Bold(au.Magenta("🎧 autoEqMac - EqMac preset generator powered by AutoEq")))
 	fmt.Println(au.Italic("Please select headphones model:"))
 	headphones := prompt.Input("🎧 >>> ", populatedCompleter(eqMetas),
 		prompt.OptionTitle("autoEqMac"),

@@ -11,6 +11,41 @@ import (
 	reflect "reflect"
 )
 
+// MockUUIDGenerator is a mock of UUIDGenerator interface
+type MockUUIDGenerator struct {
+	ctrl     *gomock.Controller
+	recorder *MockUUIDGeneratorMockRecorder
+}
+
+// MockUUIDGeneratorMockRecorder is the mock recorder for MockUUIDGenerator
+type MockUUIDGeneratorMockRecorder struct {
+	mock *MockUUIDGenerator
+}
+
+// NewMockUUIDGenerator creates a new mock instance
+func NewMockUUIDGenerator(ctrl *gomock.Controller) *MockUUIDGenerator {
+	mock := &MockUUIDGenerator{ctrl: ctrl}
+	mock.recorder = &MockUUIDGeneratorMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockUUIDGenerator) EXPECT() *MockUUIDGeneratorMockRecorder {
+	return m.recorder
+}
+
+// UUID mocks base method
+func (m *MockUUIDGenerator) UUID() string {
+	ret := m.ctrl.Call(m, "UUID")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// UUID indicates an expected call of UUID
+func (mr *MockUUIDGeneratorMockRecorder) UUID() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UUID", reflect.TypeOf((*MockUUIDGenerator)(nil).UUID))
+}
+
 // MockMapper is a mock of Mapper interface
 type MockMapper struct {
 	ctrl     *gomock.Controller
