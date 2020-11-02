@@ -19,7 +19,13 @@ import (
 var (
 	app  = kingpin.New("autoEqMac", "EqMac preset generator powered by AutoEq.\n\nAn interactive CLI that retrieves headphones EQ data from the AutoEq project and produces a JSON preset ready to be imported into EqMac.")
 	file = app.Flag("file", "Output file path. By default it's the name of the headphones model selected.").Short('f').String()
+	_    = app.Version(fmt.Sprintf("autoEqMac %s commit %s built by %s on %s", version, commit, date, builtBy)).VersionFlag.Short('v')
 	_    = app.HelpFlag.Short('h')
+
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	builtBy = "unknown"
 )
 
 func main() {
@@ -30,6 +36,7 @@ func main() {
 }
 
 func run() error {
+
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	client := http.DefaultClient
@@ -81,6 +88,7 @@ func run() error {
 	fmt.Printf("📝 Preset saved to %s\n", f.Name())
 
 	return nil
+
 }
 
 func filename(file *string, headphones string) string {
