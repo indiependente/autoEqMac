@@ -19,7 +19,7 @@ import (
 var (
 	app  = kingpin.New("autoEqMac", "EqMac preset generator powered by AutoEq.\n\nAn interactive CLI that retrieves headphones EQ data from the AutoEq project and produces a JSON preset ready to be imported into EqMac.")
 	file = app.Flag("file", "Output file path. By default it's the name of the headphones model selected.").Short('f').String()
-	_    = app.Version(fmt.Sprintf("autoEqMac %s commit %s built by %s on %s", version, commit, date, builtBy)).VersionFlag.Short('v')
+	_    = app.Version(fmt.Sprintf("autoEqMac %s commit %s built by %s on %s", version, commit, builtBy, date)).VersionFlag.Short('v')
 	_    = app.HelpFlag.Short('h')
 
 	version = "dev"
