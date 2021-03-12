@@ -25,6 +25,9 @@ func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 		if row == "" {
 			continue
 		}
+		if strings.HasPrefix(row, "Preamp") {
+			continue
+		}
 		eqFields := strings.Fields(row)
 		freq, err := strconv.Atoi(eqFields[5])
 		if err != nil {
