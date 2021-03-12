@@ -179,7 +179,6 @@ linters:
     - golint
     - vetshadow
     - ineffassign
-    - interfacer
     - unconvert
     - goconst
     - staticcheck
