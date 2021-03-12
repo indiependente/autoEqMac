@@ -21,7 +21,6 @@ type FixedBandEQs []FixedBandEQ
 func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 	var eqs FixedBandEQs
 	rows := strings.Split(string(data), "\n")
-	fmt.Printf("Got: %s\n", string(data))
 	for _, row := range rows {
 		if row == "" {
 			continue
@@ -29,9 +28,7 @@ func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 		if strings.HasPrefix(row, "Preamp") {
 			continue
 		}
-		fmt.Printf("Got: %s\n", string(row))
 		eqFields := strings.Fields(row)
-		fmt.Printf("Got: %s\n", eqFields)
 		freq, err := strconv.Atoi(eqFields[5])
 		if err != nil {
 			return nil, fmt.Errorf("could not parse frequency: %w", err)
