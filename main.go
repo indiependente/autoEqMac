@@ -110,6 +110,6 @@ func populatedCompleter(eqMetas []autoeq.EQMetadata) func(prompt.Document) []pro
 				Text: meta.Name, Description: meta.Author,
 			})
 		}
-		return prompt.FilterContains(suggs, d.Text, true)
+		return prompt.FilterContains(suggs, d.CurrentLine(), true)
 	}
 }
