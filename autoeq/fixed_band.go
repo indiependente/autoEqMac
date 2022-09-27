@@ -29,15 +29,18 @@ func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 			continue
 		}
 		eqFields := strings.Fields(row)
-		freq, err := strconv.Atoi(eqFields[5])
+		if len(eqFields) < 12 {
+			return nil, fmt.Errorf("could not parse : %s", row)
+		}
+		freq, err := strconv.Atoi(strings.TrimSpace(eqFields[5]))
 		if err != nil {
 			return nil, fmt.Errorf("could not parse frequency: %w", err)
 		}
-		gain, err := strconv.ParseFloat(eqFields[8], 64)
+		gain, err := strconv.ParseFloat(strings.TrimSpace(eqFields[8]), 64)
 		if err != nil {
 			return nil, fmt.Errorf("could not parse gain: %w", err)
 		}
-		q, err := strconv.ParseFloat(eqFields[11], 64)
+		q, err := strconv.ParseFloat(strings.TrimSpace(eqFields[11]), 64)
 		if err != nil {
 			return nil, fmt.Errorf("could not parse Q: %w", err)
 		}
