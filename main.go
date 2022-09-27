@@ -5,9 +5,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
-	"github.com/c-bata/go-prompt"
+	prompt "github.com/c-bata/go-prompt"
 	"github.com/google/uuid"
 	"github.com/indiependente/autoEqMac/autoeq"
 	"github.com/indiependente/autoEqMac/eqmac/mapping"
@@ -73,7 +74,7 @@ func run() error {
 		return fmt.Errorf("⛔️ could not find fixed band EQ preset: %w", err)
 	}
 
-	filename := filename(file, headphones)
+	filename := filepath.Clean(filename(file, headphones))
 	f, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("⛔️ could not create preset file: %w", err)

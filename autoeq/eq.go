@@ -4,7 +4,7 @@ package autoeq
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -77,7 +77,7 @@ func do(doer Doer, url string) ([]byte, error) {
 		return nil, fmt.Errorf("could not perform HTTP request: %w", err)
 	}
 	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("could not read response data: %w", err)
 	}

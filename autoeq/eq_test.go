@@ -3,7 +3,7 @@ package autoeq
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -59,7 +59,7 @@ func TestEQHTTPGetter_GetEQ(t *testing.T) {
 	t.Parallel()
 	resp := &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(bytes.NewReader(athM50X)),
+		Body:       io.NopCloser(bytes.NewReader(athM50X)),
 	}
 	tests := []struct {
 		name              string
@@ -121,7 +121,7 @@ func TestEQHTTPGetter_GetFixedBandGlobalPreamp(t *testing.T) {
 	t.Parallel()
 	resp := &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       ioutil.NopCloser(bytes.NewReader(athM50XReadme)),
+		Body:       io.NopCloser(bytes.NewReader(athM50XReadme)),
 	}
 	tests := []struct {
 		name              string
@@ -149,7 +149,7 @@ func TestEQHTTPGetter_GetFixedBandGlobalPreamp(t *testing.T) {
 			setupExpectations: func(doer *MockDoer) {
 				doer.EXPECT().Do(gomock.Any()).Return(&http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(bytes.ReplaceAll(athM50XReadme, []byte("dB"), []byte("db")))),
+					Body:       io.NopCloser(bytes.NewReader(bytes.ReplaceAll(athM50XReadme, []byte("dB"), []byte("db")))),
 				}, nil)
 			},
 			meta: EQMetadata{
