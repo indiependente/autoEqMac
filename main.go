@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/c-bata/go-prompt"
+	prompt "github.com/c-bata/go-prompt"
 	"github.com/google/uuid"
 	"github.com/indiependente/autoEqMac/autoeq"
 	"github.com/indiependente/autoEqMac/eqmac/mapping"
