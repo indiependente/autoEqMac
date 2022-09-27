@@ -64,7 +64,11 @@ func (g EQHTTPGetter) GetFixedBandGlobalPreamp(meta EQMetadata) (float64, error)
 func extractGlobalPreamp(data string) (float64, error) {
 	fbraw := strings.Split(data, fixedBandEQTitle)[1]
 	dbraw := strings.Split(fbraw, preampPrefix)[1]
-	return strconv.ParseFloat(strings.Split(dbraw, "**")[0], 64)
+	preamp := strings.Split(dbraw, "**")
+	if len(preamp) == 0 {
+		return 0, fmt.Errorf("preamp is empty: %s", dbraw)
+	}
+	return strconv.ParseFloat(strings.TrimSpace(preamp[0]), 64)
 }
 
 func do(doer Doer, url string) ([]byte, error) {
