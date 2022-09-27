@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/indiependente/autoEqMac/autoeq"
@@ -63,7 +62,7 @@ func (s HTTPServer) ListEQsMetadata() ([]autoeq.EQMetadata, error) {
 		return nil, fmt.Errorf("could not get updated headphones list: %w", err)
 	}
 	defer resp.Body.Close()
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("could not read headphones list raw data: %w", err)
 	}

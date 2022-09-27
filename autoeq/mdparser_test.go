@@ -2,8 +2,8 @@ package autoeq
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -61,7 +61,7 @@ func TestMetadataParser_ParseMetadata(t *testing.T) {
 }
 
 func mustReadFixture(t *testing.T, filename string) []byte {
-	data, err := ioutil.ReadFile(filename)
+	data, err := os.ReadFile(filepath.Clean(filename))
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%q\n", err)
 		t.Fail()

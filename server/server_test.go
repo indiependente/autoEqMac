@@ -2,7 +2,7 @@ package server
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -98,15 +98,15 @@ func TestHTTPServer(t *testing.T) {
 			setupExpectations: func(doer *MockDoer) {
 				doer.EXPECT().Do(gomock.Any()).Return(&http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(rawEqList)),
+					Body:       io.NopCloser(bytes.NewReader(rawEqList)),
 				}, nil)
 				doer.EXPECT().Do(gomock.Any()).Return(&http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(rawEqData)),
+					Body:       io.NopCloser(bytes.NewReader(rawEqData)),
 				}, nil)
 				doer.EXPECT().Do(gomock.Any()).Return(&http.Response{
 					StatusCode: http.StatusOK,
-					Body:       ioutil.NopCloser(bytes.NewReader(rawGlobalData)),
+					Body:       io.NopCloser(bytes.NewReader(rawGlobalData)),
 				}, nil)
 			},
 			want: struct {
@@ -152,7 +152,7 @@ func TestHTTPServer(t *testing.T) {
 			gotPreset, err := s.GetFixedBandEQPreset(eqMeta.ID)
 			require.NoError(t, err)
 			require.Equal(t, tt.want.preset, gotPreset)
-			err = s.WritePreset(ioutil.Discard, gotPreset)
+			err = s.WritePreset(io.Discard, gotPreset)
 			require.NoError(t, err)
 		})
 	}
