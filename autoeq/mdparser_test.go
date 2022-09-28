@@ -18,11 +18,11 @@ func TestMetadataParser_ParseMetadata(t *testing.T) {
 	type args struct {
 		data []byte
 	}
-	var tests = []struct {
+	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    []EQMetadata
+		want    []*EQMetadata
 		wantErr bool
 	}{
 		{
@@ -34,7 +34,7 @@ func TestMetadataParser_ParseMetadata(t *testing.T) {
 			args: args{
 				data: mustReadFixture(t, "testdata/autoeq_index_top.txt"),
 			},
-			want: []EQMetadata{
+			want: []*EQMetadata{
 				{
 					ID:     "0",
 					Name:   "1Custom SA02",
@@ -49,6 +49,7 @@ func TestMetadataParser_ParseMetadata(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			p := MetadataParser{
 				LinkPrefix:        tt.fields.LinkPrefix,
 				FixedBandEQSuffix: tt.fields.FixedBandEQSuffix,
@@ -61,10 +62,12 @@ func TestMetadataParser_ParseMetadata(t *testing.T) {
 }
 
 func mustReadFixture(t *testing.T, filename string) []byte {
+	t.Helper()
 	data, err := os.ReadFile(filepath.Clean(filename))
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "%q\n", err)
 		t.Fail()
 	}
+
 	return data
 }

@@ -5,9 +5,10 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
+
 	"github.com/indiependente/autoEqMac/autoeq"
 	"github.com/indiependente/autoEqMac/eqmac"
-	"github.com/stretchr/testify/require"
 )
 
 func TestAutoEQMapper_MapFixedBand(t *testing.T) {
@@ -15,7 +16,7 @@ func TestAutoEQMapper_MapFixedBand(t *testing.T) {
 	id := uuid.New().String()
 	type args struct {
 		fbeq autoeq.FixedBandEQs
-		meta autoeq.EQMetadata
+		meta *autoeq.EQMetadata
 	}
 	tests := []struct {
 		name              string
@@ -34,7 +35,7 @@ func TestAutoEQMapper_MapFixedBand(t *testing.T) {
 						Q:         1.41,
 					},
 				},
-				meta: autoeq.EQMetadata{
+				meta: &autoeq.EQMetadata{
 					ID:     "0",
 					Name:   "ATH-M50x",
 					Author: "mimmo",
@@ -60,6 +61,7 @@ func TestAutoEQMapper_MapFixedBand(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			gen := NewMockUUIDGenerator(ctrl)

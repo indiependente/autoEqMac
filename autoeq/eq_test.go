@@ -64,7 +64,7 @@ func TestEQHTTPGetter_GetEQ(t *testing.T) {
 	tests := []struct {
 		name              string
 		setupExpectations func(doer *MockDoer)
-		meta              EQMetadata
+		meta              *EQMetadata
 		want              []byte
 		wantErr           bool
 	}{
@@ -73,7 +73,7 @@ func TestEQHTTPGetter_GetEQ(t *testing.T) {
 			setupExpectations: func(doer *MockDoer) {
 				doer.EXPECT().Do(gomock.Any()).Return(resp, nil)
 			},
-			meta: EQMetadata{
+			meta: &EQMetadata{
 				ID:     "123456789",
 				Name:   "Audio-Technica ATH-M50x",
 				Author: "jaakkopasanen",
@@ -88,7 +88,7 @@ func TestEQHTTPGetter_GetEQ(t *testing.T) {
 			setupExpectations: func(doer *MockDoer) {
 				doer.EXPECT().Do(gomock.Any()).Return(nil, errors.New("connection error"))
 			},
-			meta: EQMetadata{
+			meta: &EQMetadata{
 				ID:     "123456789",
 				Name:   "Audio-Technica ATH-M50x",
 				Author: "jaakkopasanen",
@@ -102,6 +102,7 @@ func TestEQHTTPGetter_GetEQ(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			doer := NewMockDoer(ctrl)
@@ -117,7 +118,7 @@ func TestEQHTTPGetter_GetEQ(t *testing.T) {
 	}
 }
 
-func TestEQHTTPGetter_GetFixedBandGlobalPreamp(t *testing.T) {
+func TestEQHTTPGetter_GetFixedBandGlobalPreamp(t *testing.T) { //nolint:funlen
 	t.Parallel()
 	resp := &http.Response{
 		StatusCode: http.StatusOK,
@@ -126,7 +127,7 @@ func TestEQHTTPGetter_GetFixedBandGlobalPreamp(t *testing.T) {
 	tests := []struct {
 		name              string
 		setupExpectations func(doer *MockDoer)
-		meta              EQMetadata
+		meta              *EQMetadata
 		want              float64
 		wantErr           bool
 	}{
@@ -135,7 +136,7 @@ func TestEQHTTPGetter_GetFixedBandGlobalPreamp(t *testing.T) {
 			setupExpectations: func(doer *MockDoer) {
 				doer.EXPECT().Do(gomock.Any()).Return(resp, nil)
 			},
-			meta: EQMetadata{
+			meta: &EQMetadata{
 				ID:     "123456789",
 				Name:   "Audio-Technica ATH-M50x",
 				Author: "jaakkopasanen",
@@ -152,7 +153,7 @@ func TestEQHTTPGetter_GetFixedBandGlobalPreamp(t *testing.T) {
 					Body:       io.NopCloser(bytes.NewReader(bytes.ReplaceAll(athM50XReadme, []byte("dB"), []byte("db")))),
 				}, nil)
 			},
-			meta: EQMetadata{
+			meta: &EQMetadata{
 				ID:     "123456789",
 				Name:   "Audio-Technica ATH-M50x",
 				Author: "jaakkopasanen",
@@ -166,7 +167,7 @@ func TestEQHTTPGetter_GetFixedBandGlobalPreamp(t *testing.T) {
 			setupExpectations: func(doer *MockDoer) {
 				doer.EXPECT().Do(gomock.Any()).Return(nil, errors.New("connection error"))
 			},
-			meta: EQMetadata{
+			meta: &EQMetadata{
 				ID:     "123456789",
 				Name:   "Audio-Technica ATH-M50x",
 				Author: "jaakkopasanen",
@@ -179,6 +180,7 @@ func TestEQHTTPGetter_GetFixedBandGlobalPreamp(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			doer := NewMockDoer(ctrl)
