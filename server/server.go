@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -34,7 +35,7 @@ type HTTPServer struct {
 	mdparser autoeq.MarkDownParser
 	eqGetter autoeq.EQGetter
 	mapper   mapping.Mapper
-	eqMetas  map[string]autoeq.EQMetadata
+	eqMetas  map[string]*autoeq.EQMetadata
 	eqNameID map[string]string
 }
 
@@ -45,15 +46,16 @@ func NewHTTPServer(d Doer, mdp autoeq.MarkDownParser, eqg autoeq.EQGetter, m map
 		mdparser: mdp,
 		eqGetter: eqg,
 		mapper:   m,
-		eqMetas:  map[string]autoeq.EQMetadata{},
+		eqMetas:  map[string]*autoeq.EQMetadata{},
 		eqNameID: map[string]string{},
 	}
 }
 
 // ListEQsMetadata returns a list of all the EQ metadata found by the server.
 // Returns an error if any.
-func (s HTTPServer) ListEQsMetadata() ([]autoeq.EQMetadata, error) {
-	req, err := http.NewRequest(http.MethodGet, headphonesIndex, nil)
+func (s *HTTPServer) ListEQsMetadata() ([]*autoeq.EQMetadata, error) {
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, headphonesIndex, nil)
 	if err != nil {
 		return nil, fmt.Errorf("could not create HTTP request: %w", err)
 	}
@@ -61,7 +63,7 @@ func (s HTTPServer) ListEQsMetadata() ([]autoeq.EQMetadata, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not get updated headphones list: %w", err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("could not read headphones list raw data: %w", err)
@@ -74,12 +76,13 @@ func (s HTTPServer) ListEQsMetadata() ([]autoeq.EQMetadata, error) {
 		s.eqMetas[meta.ID] = meta
 		s.eqNameID[meta.Name] = meta.ID
 	}
+
 	return eqMetas, nil
 }
 
 // GetFixedBandEQPreset returns the EQ preset assiciated to the input id.
 // Returns an error if any.
-func (s HTTPServer) GetFixedBandEQPreset(id string) (eqmac.EQPreset, error) {
+func (s *HTTPServer) GetFixedBandEQPreset(id string) (eqmac.EQPreset, error) {
 	eqMeta, ok := s.eqMetas[id]
 	if !ok {
 		return eqmac.EQPreset{}, ErrEQMetadataNotFound
@@ -101,31 +104,34 @@ func (s HTTPServer) GetFixedBandEQPreset(id string) (eqmac.EQPreset, error) {
 	if err != nil {
 		return eqmac.EQPreset{}, fmt.Errorf("could not map raw EQ datato eqMac preset: %w", err)
 	}
+
 	return eqPreset, nil
 }
 
 // GetEQMetadataByName returns EQ metadata associated to a device name.
 // Returns an error if any.
-func (s HTTPServer) GetEQMetadataByName(name string) (autoeq.EQMetadata, error) {
+func (s *HTTPServer) GetEQMetadataByName(name string) (*autoeq.EQMetadata, error) {
 	metaID, ok := s.eqNameID[name]
 	if !ok {
-		return autoeq.EQMetadata{}, ErrEQMetadataNameNotFound
+		return nil, ErrEQMetadataNameNotFound
 	}
 	eqMeta, ok := s.eqMetas[metaID]
 	if !ok {
-		return autoeq.EQMetadata{}, ErrEQMetadataNotFound
+		return nil, ErrEQMetadataNotFound
 	}
+
 	return eqMeta, nil
 }
 
 // WritePreset writes the input preset to the provided io.Writer.
 // It uses json encoding.
 // Returns an error if any.
-func (s HTTPServer) WritePreset(w io.Writer, p eqmac.EQPreset) error {
+func (s *HTTPServer) WritePreset(w io.Writer, p eqmac.EQPreset) error {
 	jsonPreset, err := json.Marshal([]eqmac.EQPreset{p})
 	if err != nil {
 		return fmt.Errorf("could not marshal preset to JSON: %w", err)
 	}
 	_, err = fmt.Fprintln(w, string(jsonPreset))
+
 	return err
 }

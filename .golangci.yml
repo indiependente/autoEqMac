@@ -59,6 +59,10 @@ linters-settings:
     lines: 60
     statements: 40
 
+  revive:
+    severity: warning
+    confidence: 0.8
+
   govet:
     # report about shadowed variables
     check-shadowing: true
@@ -173,16 +177,89 @@ linters-settings:
 
 linters:
   enable:
+    - asciicheck
+    - bidichk
+    # - deadcode # deprecated (since v1.49.0)
+    - errcheck
+    - gosimple
     - govet
-    - deadcode
-    - gocyclo
-    - golint
-    - vetshadow
     - ineffassign
-    - unconvert
-    - goconst
     - staticcheck
+    # - structcheck # deprecated (since v1.49.0)
+    - typecheck
+    - unused
+    # - varcheck # deprecated (since v1.49.0)
+    # Extra rules:
+    - bodyclose
+    - containedctx
+    - cyclop
+    - decorder
+    - depguard
+    - dogsled
+    - dupl
+    - durationcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    # - exhaustivestruct # We don't check structs that have uninitialized fields
+    - exportloopref
+    # - forbidigo # fmt.Println is needed to print output to terminal
+    - forcetypeassert
+    - funlen
+    # - gci
+    # - gochecknoglobals # We allow global variables in the codebase
+    - gochecknoinits
+    - gocognit
+    - goconst
+    - gocritic
+    - gocyclo
+    - godot
+    # - godox # We allow FIXME, TODO and other comment keywords in the code
+    # - goerr113 # We don't check the static error
+    - gofmt
+    - gofumpt
+    - goheader
+    - goimports
+    # - golint # deprecated (since v1.41.0)
+    - gomnd
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
     - gosec
+    # - ifshort # deprecated (since v1.48.0)
+    - importas
+    # - lll # We don't mind long lines
+    - maintidx
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - noctx
+    - nolintlint
+    - prealloc
+    - nosprintfhostport
+    # - paralleltest # We don't care the parallel testing 
+    - predeclared
+    - promlinter
+    - reassign
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - stylecheck
+    - tagliatelle
+    # - testpackage # We are not required to create testing code in separate _test package
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - usestdlibvars
+    # - varnamelen # We don't like it, see poll: https://sliide.slack.com/archives/G01MGUZ6Q3G/p1663081655490619
+    - wastedassign
+    - whitespace
   disable-all: true
   fast: false
 

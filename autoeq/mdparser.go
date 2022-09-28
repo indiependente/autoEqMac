@@ -12,7 +12,7 @@ const (
 	fixedBandSuffix = `%20FixedBandEQ.txt`
 )
 
-// compile time interface implementation check
+// compile time interface implementation check.
 var _ MarkDownParser = MetadataParser{}
 
 // EQMetadata represents EQ metadata.
@@ -24,9 +24,9 @@ type EQMetadata struct {
 	Global float64
 }
 
-// MarkDownParser defines the behaviour of a component capable of parsing raw bytes containing MarkDown text.
+// MarkDownParser defines the behavior of a component capable of parsing raw bytes containing MarkDown text.
 type MarkDownParser interface {
-	ParseMetadata([]byte) ([]EQMetadata, error)
+	ParseMetadata([]byte) ([]*EQMetadata, error)
 }
 
 // MetadataParser is an implementation of a MarkDownParser that parses MarkDown coming from GitHub.
@@ -45,12 +45,11 @@ func NewMetadataParser() MetadataParser {
 
 // ParseMetadata returns a slice of EQ metadata parsed from the input raw bytes.
 // Returns an error if any.
-func (p MetadataParser) ParseMetadata(data []byte) ([]EQMetadata, error) {
-	var (
-		eqMeta  []EQMetadata
-		eqCount int
-	)
+func (p MetadataParser) ParseMetadata(data []byte) ([]*EQMetadata, error) {
+	eqCount := 0
 	lines := bytes.Split(data, []byte("\n"))
+	eqMeta := make([]*EQMetadata, len(lines))
+
 	for _, l := range lines {
 		if !bytes.HasPrefix(l, []byte("- [")) {
 			continue
@@ -59,15 +58,16 @@ func (p MetadataParser) ParseMetadata(data []byte) ([]EQMetadata, error) {
 		name := bytes.TrimLeft(nameLinkAuth[0], "- [")
 		linkAuth := bytes.Split(nameLinkAuth[1], []byte(") by "))
 		link := p.LinkPrefix + string(bytes.TrimLeft(linkAuth[0], ".")) + buildLink(linkAuth[0]) + p.FixedBandEQSuffix
-		eqMeta = append(eqMeta, EQMetadata{
+		eqMeta[eqCount] = &EQMetadata{
 			ID:     fmt.Sprintf("%d", eqCount),
 			Name:   string(name),
 			Author: string(linkAuth[1]),
 			Link:   link,
-		})
+		}
 		eqCount++
 	}
-	return eqMeta, nil
+
+	return eqMeta[:eqCount], nil
 }
 
 func buildLink(partialLink []byte) string {

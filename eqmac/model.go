@@ -1,3 +1,4 @@
+// Package eqmac exports the equalization presets and maps autoEQ models.
 package eqmac
 
 // EQPreset represents an EqMac preset.

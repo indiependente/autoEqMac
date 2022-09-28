@@ -8,10 +8,11 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
+
 	"github.com/indiependente/autoEqMac/autoeq"
 	"github.com/indiependente/autoEqMac/eqmac"
 	"github.com/indiependente/autoEqMac/eqmac/mapping"
-	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -63,7 +64,7 @@ In case of using fixed band (also called graphic) equalizer, apply preamp of **-
 ### Graphs
 ![](./Audio-Technica%20ATH-M50x.png)`)
 	id     = uuid.New().String()
-	eqMeta = autoeq.EQMetadata{
+	eqMeta = &autoeq.EQMetadata{
 		ID:     "0",
 		Name:   "Audio-Technica ATH-M50x",
 		Author: "oratory1990",
@@ -81,14 +82,14 @@ In case of using fixed band (also called graphic) equalizer, apply preamp of **-
 	}
 )
 
-func TestHTTPServer(t *testing.T) {
+func TestHTTPServer(t *testing.T) { //nolint:funlen
 	t.Parallel()
 
 	tests := []struct {
 		name              string
 		setupExpectations func(doer *MockDoer)
 		want              struct {
-			meta   []autoeq.EQMetadata
+			meta   []*autoeq.EQMetadata
 			preset eqmac.EQPreset
 		}
 		wantErr bool
@@ -110,10 +111,10 @@ func TestHTTPServer(t *testing.T) {
 				}, nil)
 			},
 			want: struct {
-				meta   []autoeq.EQMetadata
+				meta   []*autoeq.EQMetadata
 				preset eqmac.EQPreset
 			}{
-				meta: []autoeq.EQMetadata{
+				meta: []*autoeq.EQMetadata{
 					eqMeta,
 				},
 				preset: eqPreset,
@@ -125,6 +126,7 @@ func TestHTTPServer(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			doer := NewMockDoer(ctrl)
@@ -140,7 +142,7 @@ func TestHTTPServer(t *testing.T) {
 				mdparser: mdp,
 				eqGetter: eqg,
 				mapper:   mapp,
-				eqMetas:  map[string]autoeq.EQMetadata{},
+				eqMetas:  map[string]*autoeq.EQMetadata{},
 				eqNameID: map[string]string{},
 			}
 			got, err := s.ListEQsMetadata()
