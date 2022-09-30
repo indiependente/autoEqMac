@@ -12,13 +12,16 @@ func TestToFixedBandEQs(t *testing.T) {
 	tests := []struct {
 		name    string
 		data    []byte
-		want    FixedBandEQs
+		want    *FixedBandEQ
 		wantErr bool
 	}{
 		{
-			name:    "Happy path",
-			data:    []byte("Filter 1: ON PK Fc 31 Hz Gain 5.8 dB Q 1.41\n"),
-			want:    FixedBandEQs{{Frequency: 31, Gain: 5.8, Q: 1.41}},
+			name: "Happy path",
+			data: []byte("Preamp: -6.1 dB\nFilter 1: ON PK Fc 31 Hz Gain 5.8 dB Q 1.41\n"),
+			want: &FixedBandEQ{
+				Filters: []*FixedBandFilter{{Frequency: 31, Gain: 5.8, Q: 1.41}},
+				Preamp:  -6.1,
+			},
 			wantErr: false,
 		},
 		{

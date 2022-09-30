@@ -6,23 +6,28 @@ import (
 	"strings"
 )
 
-const preampFields = 12
+const fixedBandFields = 12
 
-// FixedBandEQ represents a single EQ band.
-type FixedBandEQ struct {
+// FixedBandFilter represents a single EQ band.
+type FixedBandFilter struct {
 	Frequency int     // Hz
-	Gain      float64 // Db
+	Gain      float64 // dB
 	Q         float64 // fixed
 }
 
-// FixedBandEQs represents a simple fixed bands EQ.
-type FixedBandEQs []*FixedBandEQ
+// FixedBandEQ represents a simple fixed bands EQ.
+type FixedBandEQ struct {
+	Filters []*FixedBandFilter
+	Preamp  float64
+}
 
 // ToFixedBandEQs transforms the raw EQ data into a fixed band EQ.
 // Returns an error if any.
-func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
+func ToFixedBandEQs(data []byte) (*FixedBandEQ, error) {
 	rows := strings.Split(string(data), "\n")
-	eqs := make(FixedBandEQs, len(rows))
+	fbEQ := &FixedBandEQ{
+		Filters: make([]*FixedBandFilter, len(rows)),
+	}
 
 	i := 0
 	for _, row := range rows {
@@ -30,10 +35,16 @@ func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 			continue
 		}
 		if strings.HasPrefix(row, "Preamp") {
+			preamp, err := strconv.ParseFloat(strings.TrimSpace(strings.Fields(row)[1]), bitSize)
+			if err != nil {
+				return nil, err
+			}
+			fbEQ.Preamp = preamp
+
 			continue
 		}
 		eqFields := strings.Fields(row)
-		if len(eqFields) < preampFields {
+		if len(eqFields) < fixedBandFields {
 			return nil, fmt.Errorf("could not parse : %s", row)
 		}
 		freq, err := strconv.Atoi(strings.TrimSpace(eqFields[5]))
@@ -48,7 +59,7 @@ func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 		if err != nil {
 			return nil, fmt.Errorf("could not parse Q: %w", err)
 		}
-		eqs[i] = &FixedBandEQ{
+		fbEQ.Filters[i] = &FixedBandFilter{
 			Frequency: freq,
 			Gain:      gain,
 			Q:         q,
@@ -56,5 +67,7 @@ func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 		i++
 	}
 
-	return eqs[:i], nil
+	fbEQ.Filters = fbEQ.Filters[:i]
+
+	return fbEQ, nil
 }

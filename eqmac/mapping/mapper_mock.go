@@ -70,7 +70,7 @@ func (m *MockMapper) EXPECT() *MockMapperMockRecorder {
 }
 
 // MapFixedBand mocks base method
-func (m *MockMapper) MapFixedBand(arg0 autoeq.FixedBandEQs, arg1 autoeq.EQMetadata) (eqmac.EQPreset, error) {
+func (m *MockMapper) MapFixedBand(arg0 autoeq.FixedBandEQ, arg1 autoeq.EQMetadata) (eqmac.EQPreset, error) {
 	ret := m.ctrl.Call(m, "MapFixedBand", arg0, arg1)
 	ret0, _ := ret[0].(eqmac.EQPreset)
 	ret1, _ := ret[1].(error)
