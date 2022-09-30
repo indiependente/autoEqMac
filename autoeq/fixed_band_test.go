@@ -25,6 +25,12 @@ func TestToFixedBandEQs(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:    "Happy path - No data",
+			data:    nil,
+			want:    &FixedBandEQ{Filters: []*FixedBandFilter{}, Preamp: 0},
+			wantErr: false,
+		},
+		{
 			name:    "Sad path - Freq not int",
 			data:    []byte("Filter 1: ON PK Fc AB Hz Gain 5.8 dB Q 1.41"),
 			want:    nil,
@@ -39,6 +45,12 @@ func TestToFixedBandEQs(t *testing.T) {
 		{
 			name:    "Sad path - Q not float",
 			data:    []byte("Filter 1: ON PK Fc 31 Hz Gain 5.8 dB Q AB"),
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "Sad path - Bad Preamp Line Format",
+			data:    []byte("Preamp: -6.1\nFilter 1: ON PK Fc AB Hz Gain 5.8 dB Q 1.41"),
 			want:    nil,
 			wantErr: true,
 		},

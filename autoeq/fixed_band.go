@@ -1,12 +1,19 @@
 package autoeq
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
-const fixedBandFields = 12
+const (
+	preampFields    = 3
+	fixedBandFields = 12
+)
+
+// ErrBadPreampFormat is returned when the preamp line can't be parsed.
+var ErrBadPreampFormat = errors.New("bad preamp line format")
 
 // FixedBandFilter represents a single EQ band.
 type FixedBandFilter struct {
@@ -34,7 +41,11 @@ func ToFixedBandEQs(data []byte) (*FixedBandEQ, error) {
 
 	// parse preamp
 	if strings.HasPrefix(rows[0], "Preamp") {
-		preamp, err := strconv.ParseFloat(strings.TrimSpace(strings.Fields(rows[0])[1]), bitSize)
+		fields := strings.Fields(rows[0])
+		if len(fields) != preampFields {
+			return nil, ErrBadPreampFormat
+		}
+		preamp, err := strconv.ParseFloat(strings.TrimSpace(fields[1]), bitSize)
 		if err != nil {
 			return nil, err
 		}
