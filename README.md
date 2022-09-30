@@ -14,6 +14,10 @@ An interactive CLI that retrieves headphones EQ data from the [AutoEq Project](h
 
 ### Install
 
+Download the latest [release](https://github.com/indiependente/autoEqMac/releases/latest).
+
+### Install with Go
+
 ```bash
 go install github.com/indiependente/autoEqMac
 ```
