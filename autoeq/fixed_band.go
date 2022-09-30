@@ -25,24 +25,29 @@ type FixedBandEQ struct {
 // Returns an error if any.
 func ToFixedBandEQs(data []byte) (*FixedBandEQ, error) {
 	rows := strings.Split(string(data), "\n")
+
 	fbEQ := &FixedBandEQ{
 		Filters: make([]*FixedBandFilter, len(rows)),
 	}
 
+	startIdx := 0 // rows index, increment if first row is preamp
+
+	// parse preamp
+	if strings.HasPrefix(rows[0], "Preamp") {
+		preamp, err := strconv.ParseFloat(strings.TrimSpace(strings.Fields(rows[0])[1]), bitSize)
+		if err != nil {
+			return nil, err
+		}
+		fbEQ.Preamp = preamp
+		startIdx++
+	}
+
 	i := 0
-	for _, row := range rows {
+	for _, row := range rows[startIdx:] {
 		if row == "" {
 			continue
 		}
-		if strings.HasPrefix(row, "Preamp") {
-			preamp, err := strconv.ParseFloat(strings.TrimSpace(strings.Fields(row)[1]), bitSize)
-			if err != nil {
-				return nil, err
-			}
-			fbEQ.Preamp = preamp
 
-			continue
-		}
 		eqFields := strings.Fields(row)
 		if len(eqFields) < fixedBandFields {
 			return nil, fmt.Errorf("could not parse : %s", row)
