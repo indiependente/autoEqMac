@@ -22,8 +22,10 @@ from the same source.
 
 - [Audio-Technica ATH-M50x](./oratory1990/harman_over-ear_2018/Audio-Technica%20ATH-M50x) by oratory1990
 `)
-	rawEqData     = []byte(`Filter 1: ON PK Fc 31 Hz Gain 5.8 dB Q 1.41`)
-	rawGlobalData = []byte(`# Audio-Technica ATH-M50x
+	rawEqData = []byte(`Preamp: -6.4 dB
+	Filter 1: ON PK Fc 31 Hz Gain 5.8 dB Q 1.41`)
+	rawEqDataNoPreamp = []byte(`Filter 1: ON PK Fc 31 Hz Gain 5.8 dB Q 1.41`)
+	rawGlobalData     = []byte(`# Audio-Technica ATH-M50x
 See [usage instructions](https://github.com/jaakkopasanen/AutoEq#usage) for more options and info.
 
 ### Parametric EQs
@@ -104,6 +106,30 @@ func TestHTTPServer(t *testing.T) { //nolint:funlen
 				doer.EXPECT().Do(gomock.Any()).Return(&http.Response{
 					StatusCode: http.StatusOK,
 					Body:       io.NopCloser(bytes.NewReader(rawEqData)),
+				}, nil)
+			},
+			want: struct {
+				meta   []*autoeq.EQMetadata
+				preset eqmac.EQPreset
+			}{
+				meta: []*autoeq.EQMetadata{
+					eqMeta,
+				},
+				preset: eqPreset,
+			},
+
+			wantErr: false,
+		},
+		{
+			name: "Happy path - Missing Global Preamp requires extra HTTP call",
+			setupExpectations: func(doer *MockDoer) {
+				doer.EXPECT().Do(gomock.Any()).Return(&http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader(rawEqList)),
+				}, nil)
+				doer.EXPECT().Do(gomock.Any()).Return(&http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(bytes.NewReader(rawEqDataNoPreamp)),
 				}, nil)
 				doer.EXPECT().Do(gomock.Any()).Return(&http.Response{
 					StatusCode: http.StatusOK,

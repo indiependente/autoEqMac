@@ -21,6 +21,7 @@ type EQMetadata struct {
 	Name   string
 	Author string
 	Link   string
+	// Deprecated: this field has been deprecated in favor of autoeq.FixedBandEQ.Preamp.
 	Global float64
 }
 

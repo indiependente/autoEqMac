@@ -91,16 +91,18 @@ func (s *HTTPServer) GetFixedBandEQPreset(id string) (eqmac.EQPreset, error) {
 	if err != nil {
 		return eqmac.EQPreset{}, fmt.Errorf("could not get raw EQ data: %w", err)
 	}
-	globalPreamp, err := s.eqGetter.GetFixedBandGlobalPreamp(eqMeta)
-	if err != nil {
-		return eqmac.EQPreset{}, fmt.Errorf("could not get global EQ preamp data: %w", err)
-	}
-	eqMeta.Global = globalPreamp
-	fbEQs, err := autoeq.ToFixedBandEQs(rawEQ)
+	fbEQ, err := autoeq.ToFixedBandEQs(rawEQ)
 	if err != nil {
 		return eqmac.EQPreset{}, fmt.Errorf("could not map raw EQ data: %w", err)
 	}
-	eqPreset, err := s.mapper.MapFixedBand(fbEQs, eqMeta)
+	if fbEQ.Preamp == 0 { // fallback mechanism for Preamp
+		globalPreamp, err := s.eqGetter.GetFixedBandGlobalPreamp(eqMeta) //nolint:govet // error shadowing doesn't impact its handling.
+		if err != nil {
+			return eqmac.EQPreset{}, fmt.Errorf("could not get global EQ preamp data: %w", err)
+		}
+		fbEQ.Preamp = globalPreamp
+	}
+	eqPreset, err := s.mapper.MapFixedBand(fbEQ, eqMeta)
 	if err != nil {
 		return eqmac.EQPreset{}, fmt.Errorf("could not map raw EQ datato eqMac preset: %w", err)
 	}

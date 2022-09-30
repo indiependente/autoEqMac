@@ -1,21 +1,30 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/indiependente/autoEqMac)](https://goreportcard.com/report/github.com/indiependente/autoEqMac)
 <a href='https://github.com/jpoles1/gopherbadger' target='_blank'>![gopherbadger-tag-do-not-edit](https://img.shields.io/badge/Go%20Coverage-63%25-brightgreen.svg?longCache=true&style=flat)</a>
 [![Workflow Status](https://github.com/indiependente/autoEqMac/workflows/lint-test/badge.svg)](https://github.com/indiependente/autoEqMac/actions)
+
 # autoEqMac
+
 An interactive CLI that retrieves headphones EQ data from the [AutoEq Project](https://github.com/jaakkopasanen/AutoEq) and produces a JSON preset ready to be imported into [EqMac](https://github.com/bitgapp/eqMac/).
 
 ## Dependencies
- - Go
+
+- Go
 
 ## How to
 
 ### Install
 
-`go install github.com/indiependente/autoEqMac`
+Download the latest [release](https://github.com/indiependente/autoEqMac/releases/latest).
+
+### Install with Go
+
+```bash
+go install github.com/indiependente/autoEqMac
+```
 
 ### Supported commands
 
-```
+```plaintext
 ▶ autoEqMac --help
 usage: autoEqMac [<flags>]
 
@@ -42,11 +51,13 @@ By default `autoEqMac` saves a JSON file with the same name of the headphones mo
 You can provide a different path by passing it using the `-f, --file` flag.
 
 ## TODO
+
 - [ ] GUI
 
 ## Credits
 
 Thanks to:
- - https://github.com/jaakkopasanen/AutoEq
- - https://github.com/bitgapp/eqMac/
- - https://github.com/c-bata/go-prompt
+
+- <https://github.com/jaakkopasanen/AutoEq>
+- <https://github.com/bitgapp/eqMac/>
+- <https://github.com/c-bata/go-prompt>

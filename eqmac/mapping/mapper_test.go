@@ -11,11 +11,11 @@ import (
 	"github.com/indiependente/autoEqMac/eqmac"
 )
 
-func TestAutoEQMapper_MapFixedBand(t *testing.T) {
+func TestAutoEQMapper_MapFixedBand(t *testing.T) { //nolint: funlen
 	t.Parallel()
 	id := uuid.New().String()
 	type args struct {
-		fbeq autoeq.FixedBandEQs
+		fbeq *autoeq.FixedBandEQ
 		meta *autoeq.EQMetadata
 	}
 	tests := []struct {
@@ -28,12 +28,13 @@ func TestAutoEQMapper_MapFixedBand(t *testing.T) {
 		{
 			name: "Happy path",
 			args: args{
-				fbeq: autoeq.FixedBandEQs{
-					{
+				fbeq: &autoeq.FixedBandEQ{
+					Preamp: -6.4,
+					Filters: []*autoeq.FixedBandFilter{{
 						Frequency: 31,
 						Gain:      5.8,
 						Q:         1.41,
-					},
+					}},
 				},
 				meta: &autoeq.EQMetadata{
 					ID:     "0",

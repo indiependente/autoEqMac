@@ -22,7 +22,7 @@ func (g WrappedGenerator) UUID() string {
 
 // Mapper defines the behavior of a component capable of mapping AutoEQ data into EqMac format.
 type Mapper interface {
-	MapFixedBand(autoeq.FixedBandEQs, *autoeq.EQMetadata) (eqmac.EQPreset, error)
+	MapFixedBand(*autoeq.FixedBandEQ, *autoeq.EQMetadata) (eqmac.EQPreset, error)
 }
 
 // compile time interface implementation check.
@@ -43,17 +43,17 @@ func NewAutoEQMapper(gen UUIDGenerator) AutoEQMapper {
 
 // MapFixedBand maps fixed bands EQ data into an EqMac preset.
 // Returns an error if any.
-func (m AutoEQMapper) MapFixedBand(fbeq autoeq.FixedBandEQs, meta *autoeq.EQMetadata) (eqmac.EQPreset, error) {
+func (m AutoEQMapper) MapFixedBand(fbeq *autoeq.FixedBandEQ, meta *autoeq.EQMetadata) (eqmac.EQPreset, error) {
 	var preset eqmac.EQPreset
 	preset.ID = m.gen.UUID()
 	preset.IsDefault = false
 	preset.Name = meta.Name
 	preset.Gains = eqmac.Gains{
-		Global: meta.Global,
+		Global: fbeq.Preamp,
 		Bands:  []float64{},
 	}
 	bands := []float64{}
-	for _, band := range fbeq {
+	for _, band := range fbeq.Filters {
 		bands = append(bands, band.Gain)
 	}
 	preset.Gains.Bands = bands

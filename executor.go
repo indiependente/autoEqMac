@@ -58,5 +58,7 @@ func NewExecutor(srv *server.HTTPServer) func(string) {
 			return
 		}
 		fmt.Printf("📝 Preset saved to %s\n", f.Name())
+
+		os.Exit(0)
 	}
 }

@@ -1,39 +1,66 @@
 package autoeq
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
-const preampFields = 12
+const (
+	preampFields    = 3
+	fixedBandFields = 12
+)
 
-// FixedBandEQ represents a single EQ band.
-type FixedBandEQ struct {
+// ErrBadPreampFormat is returned when the preamp line can't be parsed.
+var ErrBadPreampFormat = errors.New("bad preamp line format")
+
+// FixedBandFilter represents a single EQ band.
+type FixedBandFilter struct {
 	Frequency int     // Hz
-	Gain      float64 // Db
+	Gain      float64 // dB
 	Q         float64 // fixed
 }
 
-// FixedBandEQs represents a simple fixed bands EQ.
-type FixedBandEQs []*FixedBandEQ
+// FixedBandEQ represents a simple fixed bands EQ.
+type FixedBandEQ struct {
+	Filters []*FixedBandFilter
+	Preamp  float64
+}
 
 // ToFixedBandEQs transforms the raw EQ data into a fixed band EQ.
 // Returns an error if any.
-func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
+func ToFixedBandEQs(data []byte) (*FixedBandEQ, error) {
 	rows := strings.Split(string(data), "\n")
-	eqs := make(FixedBandEQs, len(rows))
+
+	fbEQ := &FixedBandEQ{
+		Filters: make([]*FixedBandFilter, len(rows)),
+	}
+
+	startIdx := 0 // rows index, increment if first row is preamp
+
+	// parse preamp
+	if strings.HasPrefix(rows[0], "Preamp") {
+		fields := strings.Fields(rows[0])
+		if len(fields) != preampFields {
+			return nil, ErrBadPreampFormat
+		}
+		preamp, err := strconv.ParseFloat(strings.TrimSpace(fields[1]), bitSize)
+		if err != nil {
+			return nil, err
+		}
+		fbEQ.Preamp = preamp
+		startIdx++
+	}
 
 	i := 0
-	for _, row := range rows {
+	for _, row := range rows[startIdx:] {
 		if row == "" {
 			continue
 		}
-		if strings.HasPrefix(row, "Preamp") {
-			continue
-		}
+
 		eqFields := strings.Fields(row)
-		if len(eqFields) < preampFields {
+		if len(eqFields) < fixedBandFields {
 			return nil, fmt.Errorf("could not parse : %s", row)
 		}
 		freq, err := strconv.Atoi(strings.TrimSpace(eqFields[5]))
@@ -48,7 +75,7 @@ func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 		if err != nil {
 			return nil, fmt.Errorf("could not parse Q: %w", err)
 		}
-		eqs[i] = &FixedBandEQ{
+		fbEQ.Filters[i] = &FixedBandFilter{
 			Frequency: freq,
 			Gain:      gain,
 			Q:         q,
@@ -56,5 +83,7 @@ func ToFixedBandEQs(data []byte) (FixedBandEQs, error) {
 		i++
 	}
 
-	return eqs[:i], nil
+	fbEQ.Filters = fbEQ.Filters[:i]
+
+	return fbEQ, nil
 }
