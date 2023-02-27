@@ -242,7 +242,7 @@ linters:
     - nolintlint
     - prealloc
     - nosprintfhostport
-    # - paralleltest # We don't care the parallel testing 
+    # - paralleltest # We don't need parallel testing atm
     - predeclared
     - promlinter
     - reassign
@@ -257,7 +257,7 @@ linters:
     - unconvert
     - unparam
     - usestdlibvars
-    # - varnamelen # We don't like it, see poll: https://sliide.slack.com/archives/G01MGUZ6Q3G/p1663081655490619
+    # - varnamelen # We don't like it
     - wastedassign
     - whitespace
   disable-all: true
