@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/c-bata/go-prompt v0.2.6
 	github.com/golang/mock v1.6.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.6.0
 	github.com/logrusorgru/aurora v2.0.3+incompatible
 	github.com/stretchr/testify v1.8.4
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
