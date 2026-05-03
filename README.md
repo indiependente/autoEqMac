@@ -50,6 +50,23 @@ By default `autoEqMac` saves a JSON file with the same name of the headphones mo
 
 You can provide a different path by passing it using the `-f, --file` flag.
 
+## Running with Docker
+
+Docker can be used in order to execute autoEqMac without installing the Golan runtime environmnet.
+
+Build Image:
+
+```
+ docker build -t autoEqMac .
+```
+
+And then, to run autoEqMac:
+
+```
+docker run --rm -it -v $(pwd):/app autoEqMac
+```
+
+
 ## TODO
 
 - [ ] GUI
